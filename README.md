@@ -152,164 +152,105 @@ Password: admin123
 Email: amit.patel@gmail.com
 Password: amit123
 ```
+- React Router
+- Axios
+- Tailwind CSS
+- Lucide Icons
 
-## 📚 Documentation
+## Setup Instructions
 
-- **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Complete testing scenarios and test cases
-- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Step-by-step deployment instructions
-- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Deployment checklist and troubleshooting
-- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Complete project overview and achievements
+### Backend Setup
 
-## 🔌 API Endpoints
+1. Navigate to backend folder:
+```bash
+cd backend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create `.env` file with:
+```
+MONGODB_URI=your_mongodb_connection_string
+PORT=2016
+SESSION_SECRET=your_secret_key
+```
+
+4. Start server:
+```bash
+npm start
+```
+
+Backend will run on `http://localhost:2016`
+
+### Frontend Setup
+
+1. Navigate to frontend folder:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start development server:
+```bash
+npm run dev
+```
+
+Frontend will run on `http://localhost:5173`
+
+## API Endpoints
 
 ### Admin Routes (`/admin`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/admin/login` | Admin authentication |
-| GET | `/admin/allApplicants` | Fetch all applications |
-| POST | `/admin/acceptApplicant` | Accept an application |
-| POST | `/admin/rejectApplicant` | Reject an application |
-| POST | `/admin/grantApplicant` | Grant franchise status |
-| POST | `/admin/saveFranchiseCred` | Generate franchisee credentials |
-| POST | `/admin/getSalesData` | Get all sales data |
+- `POST /login` - Admin login
+- `GET /allApplicants` - Get all applications
+- `POST /acceptApplicant` - Accept application
+- `POST /rejectApplicant` - Reject application
+- `POST /grantApplicant` - Grant franchise
+- `POST /saveFranchiseCred` - Create franchisee credentials
 
 ### Applicant Routes (`/applicant`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/applicant/apply` | Submit new application |
+- `POST /apply` - Submit franchise application
 
 ### Franchisee Routes (`/franchisee`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/franchisee/login` | Franchisee authentication |
-| GET | `/franchisee/profile` | Get franchisee details |
-| POST | `/franchisee/addSales` | Add daily sales entry |
-| POST | `/franchisee/getSales` | Fetch sales history |
+- `POST /login` - Franchisee login
+- `GET /profile` - Get franchisee profile
+- `POST /addSales` - Add daily sales data
+- `POST /getSales` - Get sales history
 
-## 💾 Database Schema
+## Database Collections
 
-### Collections
-- **`Applicants`** - Franchise applications with status tracking
-- **`admins`** - Admin user accounts
-- **`franchise_credentails`** - Franchisee login credentials *(typo intentional for DB compatibility)*
-- **`SalesData`** - Daily sales records with compound indexes
+- `applicants` - Franchise applications
+- `admins` - Admin accounts
+- `franchise_credentails` - Franchisee login credentials (typo intentional)
+- `t_sales_data` - Daily sales data
 
-### Status Flow
-```
-pending → accepted → granted
-        ↘ rejected
-```
+## Deployment
 
-## 🚢 Deployment
+### Backend (Render)
+1. Push code to GitHub
+2. Connect repository to Render
+3. Add environment variables
+4. Deploy
 
-### Quick Deployment Guide
+### Frontend (Netlify)
+1. Push code to GitHub
+2. Connect repository to Netlify
+3. Build command: `npm run build`
+4. Publish directory: `dist`
+5. Deploy
 
-1. **Prepare Code:**
-```bash
-git add .
-git commit -m "Ready for deployment"
-git push origin main
-```
+## Default Credentials
 
-2. **Deploy Backend to Render:**
-   - Create new Web Service
-   - Connect GitHub repository
-   - Root Directory: `backend`
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-   - Add environment variables
+**Admin:**
+- Email: `admin@franchisehub.com`
+- Password: `admin123`
 
-3. **Deploy Frontend to Netlify:**
-   - Create new site
-   - Base directory: `frontend`
-   - Build command: `npm run build`
-   - Publish directory: `frontend/dist`
+## License
 
-📖 See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed instructions.
-
-## ⚡ Performance
-
-All critical operations complete in **< 1 second**:
-- Accept Applicant: `0.313s` ✅
-- Reject Applicant: `0.330s` ✅
-- Grant Access: `0.304s` ✅
-- Create Credentials: `0.605s` ✅
-
-**No hanging or blocking issues!**
-
-## 🐛 Troubleshooting
-
-### Backend won't start
-- Check if MongoDB connection string is correct in `.env`
-- Ensure port 2016 is not in use: `lsof -ti:2016 | xargs kill`
-- Verify all dependencies are installed: `cd backend && npm install`
-
-### Frontend won't start
-- Clear node_modules: `rm -rf node_modules && npm install`
-- Check if port 5173 is available
-- Verify Tailwind CSS is configured: `npm run build` should work
-
-### API calls failing
-- Check CORS settings in `backend/server.js`
-- Verify backend is running on port 2016
-- Check `frontend/src/config/api.js` for correct API URL
-
-### Operations hanging
-- This issue has been **completely fixed** in V2
-- All email operations removed for instant responses
-- If still experiencing issues, check network connection
-
-## 🎨 Features Showcase
-
-### Admin Dashboard
-- 📊 Real-time statistics dashboard
-- 🔍 Advanced search and filtering
-- 📑 Tab-based application management
-- ⚡ Instant status updates
-- 🎨 Modern gradient UI with Tailwind CSS
-
-### Franchisee Portal
-- 💼 Personal sales dashboard
-- 📈 Sales analytics and trends
-- 📝 Easy data entry forms
-- 📊 Historical data visualization
-
-## 🔒 Security Features
-
-- Session-based authentication
-- Password encryption (not visible in database)
-- Protected routes with middleware
-- CORS configuration
-- Environment variable protection
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/YourFeature`
-3. Commit changes: `git commit -m 'Add YourFeature'`
-4. Push to branch: `git push origin feature/YourFeature`
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👨‍💻 Author
-
-**Aryan Kansal**
-
-## 🙏 Acknowledgments
-
-- MongoDB Atlas for database hosting
-- Render for backend hosting
-- Netlify for frontend hosting
-- Tailwind CSS for beautiful styling
-- React and Vite for amazing developer experience
-
----
-
-**Status:** ✅ Production Ready | **Version:** 2.0.0 | **Last Updated:** January 2026
-
-For questions or support, please open an issue on GitHub.
+MIT
