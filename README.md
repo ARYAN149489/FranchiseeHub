@@ -2,6 +2,8 @@
 
 > A modern, full-stack franchise management system for streamlining applications, sales tracking, and franchisee operations.
 
+🌐 **Live Demo:** [https://franchiseehub.netlify.app/](https://franchiseehub.netlify.app/)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-v14+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18.x-blue.svg)](https://reactjs.org/)
