@@ -5,6 +5,7 @@ import AdminSidebar from '../components/layout/AdminSidebar';
 import DashboardOverview from '../components/admin/DashboardOverview';
 import ApplicationsList from '../components/admin/ApplicationsList';
 import FranchisesList from '../components/admin/FranchisesList';
+import AdminSettings from '../components/admin/AdminSettings';
 import API_BASE_URL from '../config/api';
 
 function AdminDashboard() {
@@ -16,7 +17,7 @@ function AdminDashboard() {
     // Check authentication
     const userType = localStorage.getItem('userType');
     if (userType !== 'admin') {
-      navigate('/admin/login');
+      navigate('/login');
       return;
     }
     
@@ -70,6 +71,10 @@ function AdminDashboard() {
           <Route 
             path="/franchises" 
             element={<FranchisesList applicants={applicants} />} 
+          />
+          <Route 
+            path="/settings" 
+            element={<AdminSettings />} 
           />
         </Routes>
       </div>

@@ -1,6 +1,6 @@
 const Applicant = require('../models/Applicant');
-
-// Submit application
+const Admin = require('../models/Admin');
+const emailService = require('../utils/emailService');
 exports.submitApplication = async (req, res) => {
   try {
     const {
@@ -23,6 +23,32 @@ exports.submitApplication = async (req, res) => {
     });
     
     await applicant.save();
+    
+    // Send notification email to all admins
+    try {
+      const admins = await Admin.find({}, 'email');
+      const applicantName = `${fname} ${lname}`;
+      
+      for (const admin of admins) {
+        const emailResult = await emailService.sendNewApplicationNotification(
+          admin.email,
+          applicantName,
+          email,
+          buis_name,
+          site_city
+        );
+        
+        if (emailResult.success) {
+          console.log(`📧 New application notification sent to admin: ${admin.email}`);
+        } else {
+          console.error(`⚠️ Failed to send notification to admin: ${admin.email}`);
+        }
+      }
+    } catch (emailError) {
+      console.error('Error sending admin notifications:', emailError);
+      // Don't fail the application submission if email fails
+    }
+    
     res.json({ stat: true, msg: 'Application submitted successfully' });
   } catch (error) {
     console.error('Error submitting application:', error);

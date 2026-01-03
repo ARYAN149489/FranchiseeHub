@@ -24,15 +24,70 @@ exports.login = async (req, res) => {
 // Get profile
 exports.getProfile = async (req, res) => {
   try {
-    const email = req.session.franchiseeEmail;
-    if (!email) {
-      return res.status(401).json({ stat: false, msg: 'Not authenticated' });
-    }
+    const { email } = req.body;
     
     const profile = await Applicant.findOne({ email });
-    res.json({ stat: true, profile });
+    if (profile) {
+      res.json({ stat: true, doc: profile });
+    } else {
+      res.json({ stat: false, msg: 'Profile not found' });
+    }
   } catch (error) {
     console.error('Error fetching profile:', error);
+    res.status(500).json({ stat: false, msg: error.message });
+  }
+};
+
+// Update profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { email, fname, lname, phone, res_address, buis_name, site_address, site_city, site_postal } = req.body;
+    
+    const updated = await Applicant.findOneAndUpdate(
+      { email },
+      {
+        fname,
+        lname,
+        phone,
+        res_address,
+        buis_name,
+        site_address,
+        site_city,
+        site_postal
+      },
+      { new: true }
+    );
+    
+    if (updated) {
+      res.json({ stat: true, msg: 'Profile updated successfully', doc: updated });
+    } else {
+      res.json({ stat: false, msg: 'Profile not found' });
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ stat: false, msg: error.message });
+  }
+};
+
+// Change password
+exports.changePassword = async (req, res) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+    
+    // Verify current password
+    const credential = await FranchiseCredential.findOne({ email, password: currentPassword });
+    
+    if (!credential) {
+      return res.json({ stat: false, msg: 'Current password is incorrect' });
+    }
+    
+    // Update password
+    credential.password = newPassword;
+    await credential.save();
+    
+    res.json({ stat: true, msg: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
     res.status(500).json({ stat: false, msg: error.message });
   }
 };
@@ -40,8 +95,9 @@ exports.getProfile = async (req, res) => {
 // Add sales
 exports.addSales = async (req, res) => {
   try {
-    const { email, dos, revenue } = req.body;
+    const { email, dos, sale, customers, orders, items_sold } = req.body;
     
+    // Parse date string and create local date object (will be stored with timezone)
     const salesDate = new Date(dos);
     salesDate.setHours(0, 0, 0, 0);
     
@@ -49,7 +105,10 @@ exports.addSales = async (req, res) => {
     const existing = await SalesData.findOne({ email, dos: salesDate });
     
     if (existing) {
-      existing.revenue = revenue;
+      existing.sale = sale;
+      existing.customers = customers;
+      existing.orders = orders || 0;
+      existing.items_sold = items_sold || 0;
       await existing.save();
       return res.json({ stat: true, msg: 'Sales updated' });
     }
@@ -58,7 +117,10 @@ exports.addSales = async (req, res) => {
     const salesData = new SalesData({
       email,
       dos: salesDate,
-      revenue
+      sale,
+      customers,
+      orders: orders || 0,
+      items_sold: items_sold || 0
     });
     
     await salesData.save();
@@ -77,6 +139,7 @@ exports.getSales = async (req, res) => {
     const query = { email };
     
     if (start && end) {
+      // Parse dates and set to local timezone boundaries
       const startDate = new Date(start);
       startDate.setHours(0, 0, 0, 0);
       

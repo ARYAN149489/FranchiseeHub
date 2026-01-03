@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, LogOut, Award } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Award, Settings } from 'lucide-react';
 
 export default function AdminSidebar() {
   const navigate = useNavigate();
@@ -7,7 +7,7 @@ export default function AdminSidebar() {
   const handleLogout = () => {
     localStorage.removeItem('userType');
     localStorage.removeItem('email');
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   return (
@@ -20,7 +20,7 @@ export default function AdminSidebar() {
 
         <nav className="space-y-2">
           <NavLink
-            to="/admin/dashboard"
+            to="/admin"
             end
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
@@ -54,6 +54,18 @@ export default function AdminSidebar() {
           >
             <Users size={20} />
             <span>Franchises</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/settings"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/20' : 'hover:bg-white/10'
+              }`
+            }
+          >
+            <Settings size={20} />
+            <span>Settings</span>
           </NavLink>
 
           <button

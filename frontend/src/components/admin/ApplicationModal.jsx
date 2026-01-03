@@ -123,14 +123,14 @@ export default function ApplicationModal({ application, onClose, onAction, loadi
             {application.status === 'pending' && (
               <>
                 <button
-                  onClick={() => onAction(application.email, 'accept')}
+                  onClick={() => onAction(application.email, 'accept', `${application.fname} ${application.lname}`)}
                   disabled={loading}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? 'Processing...' : 'Accept'}
                 </button>
                 <button
-                  onClick={() => onAction(application.email, 'reject')}
+                  onClick={() => onAction(application.email, 'reject', `${application.fname} ${application.lname}`)}
                   disabled={loading}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
@@ -141,14 +141,14 @@ export default function ApplicationModal({ application, onClose, onAction, loadi
             {application.status === 'accepted' && (
               <>
                 <button
-                  onClick={() => onAction(application.email, 'grant')}
+                  onClick={() => onAction(application.email, 'grant', `${application.fname} ${application.lname}`)}
                   disabled={loading}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? 'Processing...' : 'Grant Franchise'}
                 </button>
                 <button
-                  onClick={() => onAction(application.email, 'reject')}
+                  onClick={() => onAction(application.email, 'reject', `${application.fname} ${application.lname}`)}
                   disabled={loading}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >

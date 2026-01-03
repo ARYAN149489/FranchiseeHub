@@ -13,13 +13,10 @@ function LandingPage() {
               <span className="text-2xl font-bold text-gray-900">FranchiseHub</span>
             </div>
             <div className="flex gap-4">
-              <Link to="/admin/login" className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium">
-                Admin Login
+              <Link to="/login" className="px-6 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                Login
               </Link>
-              <Link to="/franchisee/login" className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium">
-                Franchisee Login
-              </Link>
-              <Link to="/apply" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+              <Link to="/apply" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-md hover:shadow-lg">
                 Apply Now
               </Link>
             </div>

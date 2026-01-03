@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const salesDataSchema = new mongoose.Schema({
   email: { type: String, required: true, index: true },
   dos: { type: Date, required: true },
-  revenue: { type: Number, required: true }
+  sale: { type: Number, required: true },
+  customers: { type: Number, required: true },
+  orders: { type: Number, default: 0 },
+  items_sold: { type: Number, default: 0 }
 }, { 
   timestamps: true,
   collection: 't_sales_data'

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, DollarSign, LogOut, Award } from 'lucide-react';
+import { LayoutDashboard, DollarSign, LogOut, Award, Calendar, BarChart3, History, Settings } from 'lucide-react';
 
 export default function FranchiseeSidebar({ profile }) {
   const navigate = useNavigate();
@@ -7,7 +7,7 @@ export default function FranchiseeSidebar({ profile }) {
   const handleLogout = () => {
     localStorage.removeItem('userType');
     localStorage.removeItem('email');
-    navigate('/franchisee/login');
+    navigate('/login');
   };
 
   return (
@@ -23,15 +23,12 @@ export default function FranchiseeSidebar({ profile }) {
           <div className="bg-white/10 rounded-lg p-4 mb-6">
             <div className="font-semibold text-lg">{profile.fname} {profile.lname}</div>
             <div className="text-sm text-green-100">{profile.email}</div>
-            {profile.buis_name && (
-              <div className="text-xs text-green-200 mt-1">{profile.buis_name}</div>
-            )}
           </div>
         )}
 
         <nav className="space-y-2">
           <NavLink
-            to="/franchisee/dashboard"
+            to="/franchisee"
             end
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
@@ -44,7 +41,7 @@ export default function FranchiseeSidebar({ profile }) {
           </NavLink>
 
           <NavLink
-            to="/franchisee/sales"
+            to="/franchisee/today"
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive ? 'bg-white/20' : 'hover:bg-white/10'
@@ -52,7 +49,55 @@ export default function FranchiseeSidebar({ profile }) {
             }
           >
             <DollarSign size={20} />
-            <span>Sales Management</span>
+            <span>Add Sales</span>
+          </NavLink>
+
+          <NavLink
+            to="/franchisee/history"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/20' : 'hover:bg-white/10'
+              }`
+            }
+          >
+            <History size={20} />
+            <span>Sales History</span>
+          </NavLink>
+
+          <NavLink
+            to="/franchisee/calendar"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/20' : 'hover:bg-white/10'
+              }`
+            }
+          >
+            <Calendar size={20} />
+            <span>Calendar View</span>
+          </NavLink>
+
+          <NavLink
+            to="/franchisee/analysis"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/20' : 'hover:bg-white/10'
+              }`
+            }
+          >
+            <BarChart3 size={20} />
+            <span>Analysis</span>
+          </NavLink>
+
+          <NavLink
+            to="/franchisee/settings"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-white/20' : 'hover:bg-white/10'
+              }`
+            }
+          >
+            <Settings size={20} />
+            <span>Settings</span>
           </NavLink>
 
           <button

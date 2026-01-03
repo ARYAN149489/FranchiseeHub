@@ -1,6 +1,9 @@
-import { Users, Mail, Phone, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { Users, Mail, Phone, MapPin, Eye } from 'lucide-react';
+import FranchiseDetailModal from './FranchiseDetailModal';
 
 export default function FranchisesList({ applicants }) {
+  const [selectedFranchise, setSelectedFranchise] = useState(null);
   const grantedFranchisees = applicants.filter(a => a.status === 'granted');
 
   return (
@@ -25,7 +28,7 @@ export default function FranchisesList({ applicants }) {
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
                     {franchisee.fname.charAt(0)}{franchisee.lname.charAt(0)}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <div className="font-bold text-gray-900 text-lg">
                       {franchisee.fname} {franchisee.lname}
                     </div>
@@ -68,6 +71,15 @@ export default function FranchisesList({ applicants }) {
                     <div className="font-semibold text-gray-900">{franchisee.ownership}</div>
                   </div>
                 </div>
+
+                {/* View Details Button */}
+                <button
+                  onClick={() => setSelectedFranchise(franchisee)}
+                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <Eye size={16} />
+                  View Sales Data
+                </button>
               </div>
             ))}
           </div>
@@ -79,6 +91,12 @@ export default function FranchisesList({ applicants }) {
           </div>
         )}
       </div>
+
+      {/* Franchise Detail Modal */}
+      <FranchiseDetailModal
+        franchise={selectedFranchise}
+        onClose={() => setSelectedFranchise(null)}
+      />
     </div>
   );
 }

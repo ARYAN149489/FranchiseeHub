@@ -1,15 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Search, X } from 'lucide-react';
 import StatusBadge from '../common/StatusBadge';
 import ApplicationModal from './ApplicationModal';
+import ConfirmModal from '../common/ConfirmModal';
+import SuccessModal from '../common/SuccessModal';
 import API_BASE_URL from '../../config/api';
 
 export default function ApplicationsList({ applicants, fetchApplicants }) {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedApp, setSelectedApp] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, email: null, name: '' });
+  const [successModal, setSuccessModal] = useState({ isOpen: false, type: null, data: null });
+
+  // Handle filter from dashboard navigation
+  useEffect(() => {
+    if (location.state?.filterStatus) {
+      setActiveTab(location.state.filterStatus);
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Filter applications
   const filteredApps = applicants.filter(app => {
@@ -27,30 +42,71 @@ export default function ApplicationsList({ applicants, fetchApplicants }) {
   });
 
   // Handle actions (accept, reject, grant)
-  const handleAction = async (email, action) => {
-    if (!window.confirm(`Are you sure you want to ${action} this application?`)) {
-      return;
-    }
+  const handleActionClick = (email, action, name) => {
+    setConfirmModal({
+      isOpen: true,
+      action,
+      email,
+      name
+    });
+  };
 
+  const handleConfirmAction = async () => {
+    const { email, action } = confirmModal;
     setLoading(true);
+
     try {
       let endpoint = '';
       
       if (action === 'accept') {
         endpoint = '/admin/acceptApplicant';
         await axios.post(`${API_BASE_URL}${endpoint}`, { email });
+        await fetchApplicants();
+        setSelectedApp(null);
+        setConfirmModal({ isOpen: false, action: null, email: null, name: '' });
+        setSuccessModal({ isOpen: true, type: 'accepted', data: null });
       } else if (action === 'reject') {
         endpoint = '/admin/rejectApplicant';
         await axios.post(`${API_BASE_URL}${endpoint}`, { email });
+        await fetchApplicants();
+        setSelectedApp(null);
+        setConfirmModal({ isOpen: false, action: null, email: null, name: '' });
+        setSuccessModal({ isOpen: true, type: 'rejected', data: null });
       } else if (action === 'grant') {
         // Grant and create credentials
-        await axios.post(`${API_BASE_URL}/admin/grantApplicant`, { email });
-        await axios.post(`${API_BASE_URL}/admin/saveFranchiseCred`, { email });
+        const response = await axios.post(`${API_BASE_URL}/admin/grantApplicant`, { email });
+        
+        if (response.data.stat) {
+          await fetchApplicants();
+          setSelectedApp(null);
+          setConfirmModal({ isOpen: false, action: null, email: null, name: '' });
+          
+          // Check if email was sent successfully
+          if (response.data.emailSent) {
+            // Email sent successfully - show simple success message
+            setSuccessModal({ 
+              isOpen: true, 
+              type: 'granted-email', 
+              data: { email }
+            });
+          } else if (response.data.password) {
+            // Email failed but we have credentials - show them as fallback
+            setSuccessModal({ 
+              isOpen: true, 
+              type: 'granted', 
+              data: {
+                email: response.data.email,
+                password: response.data.password,
+                emailFailed: true
+              }
+            });
+          } else {
+            throw new Error('Failed to generate credentials');
+          }
+        } else {
+          throw new Error('Failed to grant franchise');
+        }
       }
-      
-      await fetchApplicants();
-      setSelectedApp(null);
-      alert(`Application ${action}ed successfully!`);
     } catch (error) {
       console.error('Error:', error);
       alert(`Failed to ${action} application. Please try again.`);
@@ -166,14 +222,14 @@ export default function ApplicationsList({ applicants, fetchApplicants }) {
                         {app.status === 'pending' && (
                           <>
                             <button
-                              onClick={() => handleAction(app.email, 'accept')}
+                              onClick={() => handleActionClick(app.email, 'accept', `${app.fname} ${app.lname}`)}
                               disabled={loading}
                               className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                             >
                               Accept
                             </button>
                             <button
-                              onClick={() => handleAction(app.email, 'reject')}
+                              onClick={() => handleActionClick(app.email, 'reject', `${app.fname} ${app.lname}`)}
                               disabled={loading}
                               className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                             >
@@ -184,14 +240,14 @@ export default function ApplicationsList({ applicants, fetchApplicants }) {
                         {app.status === 'accepted' && (
                           <>
                             <button
-                              onClick={() => handleAction(app.email, 'grant')}
+                              onClick={() => handleActionClick(app.email, 'grant', `${app.fname} ${app.lname}`)}
                               disabled={loading}
                               className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                             >
                               Grant
                             </button>
                             <button
-                              onClick={() => handleAction(app.email, 'reject')}
+                              onClick={() => handleActionClick(app.email, 'reject', `${app.fname} ${app.lname}`)}
                               disabled={loading}
                               className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                             >
@@ -222,8 +278,26 @@ export default function ApplicationsList({ applicants, fetchApplicants }) {
       <ApplicationModal
         application={selectedApp}
         onClose={() => setSelectedApp(null)}
-        onAction={handleAction}
+        onAction={handleActionClick}
         loading={loading}
+      />
+
+      {/* Confirm Action Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, action: null, email: null, name: '' })}
+        onConfirm={handleConfirmAction}
+        action={confirmModal.action}
+        applicantName={confirmModal.name}
+        loading={loading}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, type: null, data: null })}
+        type={successModal.type}
+        data={successModal.data}
       />
     </div>
   );

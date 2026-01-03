@@ -3,7 +3,11 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import FranchiseeSidebar from '../components/layout/FranchiseeSidebar';
 import DashboardOverview from '../components/franchisee/DashboardOverview';
-import SalesManagement from '../components/franchisee/SalesManagement';
+import TodaysSales from '../components/franchisee/TodaysSales';
+import SalesHistory from '../components/franchisee/SalesHistory';
+import SalesCalendar from '../components/franchisee/SalesCalendar';
+import SalesAnalysis from '../components/franchisee/SalesAnalysis';
+import FranchiseeSettings from '../components/franchisee/FranchiseeSettings';
 import API_BASE_URL from '../config/api';
 
 function FranchiseeDashboard() {
@@ -11,13 +15,14 @@ function FranchiseeDashboard() {
   const [profile, setProfile] = useState(null);
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
   const email = localStorage.getItem('email');
 
   useEffect(() => {
     // Check authentication
     const userType = localStorage.getItem('userType');
     if (userType !== 'franchisee' || !email) {
-      navigate('/franchisee/login');
+      navigate('/login');
       return;
     }
 
@@ -52,6 +57,17 @@ function FranchiseeDashboard() {
     }
   };
 
+  // Handler for calendar date click
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+    navigate('/franchisee/history', { state: { selectedDate: date } });
+  };
+
+  // Handler for refreshing data after adding sales
+  const handleSalesAdded = () => {
+    fetchSalesData();
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -76,8 +92,24 @@ function FranchiseeDashboard() {
             element={<DashboardOverview profile={profile} salesData={salesData} />} 
           />
           <Route 
-            path="/sales" 
-            element={<SalesManagement email={email} salesData={salesData} fetchSalesData={fetchSalesData} />} 
+            path="/today" 
+            element={<TodaysSales email={email} onSalesAdded={handleSalesAdded} />} 
+          />
+          <Route 
+            path="/history" 
+            element={<SalesHistory email={email} selectedDate={selectedDate} />} 
+          />
+          <Route 
+            path="/calendar" 
+            element={<SalesCalendar email={email} onDateClick={handleDateClick} />} 
+          />
+          <Route 
+            path="/analysis" 
+            element={<SalesAnalysis email={email} />} 
+          />
+          <Route 
+            path="/settings" 
+            element={<FranchiseeSettings email={email} profile={profile} onProfileUpdate={fetchProfile} />} 
           />
         </Routes>
       </div>
