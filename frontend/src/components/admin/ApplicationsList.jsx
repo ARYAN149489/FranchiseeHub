@@ -60,56 +60,63 @@ export default function ApplicationsList({ applicants, fetchApplicants }) {
       
       if (action === 'accept') {
         endpoint = '/admin/acceptApplicant';
-        await axios.post(`${API_BASE_URL}${endpoint}`, { email });
+        await axios.post(`${API_BASE_URL}${endpoint}`, { email }, { timeout: 10000 });
         await fetchApplicants();
         setSelectedApp(null);
         setConfirmModal({ isOpen: false, action: null, email: null, name: '' });
         setSuccessModal({ isOpen: true, type: 'accepted', data: null });
       } else if (action === 'reject') {
         endpoint = '/admin/rejectApplicant';
-        await axios.post(`${API_BASE_URL}${endpoint}`, { email });
+        await axios.post(`${API_BASE_URL}${endpoint}`, { email }, { timeout: 10000 });
         await fetchApplicants();
         setSelectedApp(null);
         setConfirmModal({ isOpen: false, action: null, email: null, name: '' });
         setSuccessModal({ isOpen: true, type: 'rejected', data: null });
       } else if (action === 'grant') {
-        // Grant and create credentials
-        const response = await axios.post(`${API_BASE_URL}/admin/grantApplicant`, { email });
+        // Grant and create credentials with longer timeout
+        const response = await axios.post(
+          `${API_BASE_URL}/admin/grantApplicant`, 
+          { email },
+          { timeout: 15000 } // 15 second timeout
+        );
         
         if (response.data.stat) {
           await fetchApplicants();
           setSelectedApp(null);
           setConfirmModal({ isOpen: false, action: null, email: null, name: '' });
           
-          // Check if email was sent successfully
-          if (response.data.emailSent) {
-            // Email sent successfully - show simple success message
-            setSuccessModal({ 
-              isOpen: true, 
-              type: 'granted-email', 
-              data: { email }
-            });
-          } else if (response.data.password) {
-            // Email failed but we have credentials - show them as fallback
-            setSuccessModal({ 
-              isOpen: true, 
-              type: 'granted', 
-              data: {
-                email: response.data.email,
-                password: response.data.password,
-                emailFailed: true
-              }
-            });
-          } else {
-            throw new Error('Failed to generate credentials');
-          }
+          // Always show credentials (email sent in background)
+          setSuccessModal({ 
+            isOpen: true, 
+            type: 'granted', 
+            data: {
+              email: response.data.email,
+              password: response.data.password,
+              emailSent: response.data.emailSent
+            }
+          });
         } else {
-          throw new Error('Failed to grant franchise');
+          throw new Error(response.data.msg || 'Failed to grant franchise');
         }
       }
     } catch (error) {
       console.error('Error:', error);
-      alert(`Failed to ${action} application. Please try again.`);
+      let errorMessage = `Failed to ${action} application. `;
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage += 'Request timed out. The action may have completed - please refresh the page.';
+      } else if (error.response) {
+        errorMessage += error.response.data?.msg || error.message;
+      } else if (error.request) {
+        errorMessage += 'Network error. Please check your connection.';
+      } else {
+        errorMessage += error.message;
+      }
+      
+      alert(errorMessage);
+      
+      // Refresh applicants in case the action actually succeeded
+      await fetchApplicants();
     } finally {
       setLoading(false);
     }
