@@ -94,7 +94,7 @@ A franchise management system for handling applications, franchisee operations, 
 
 ```
 User → Frontend → POST /admin|franchisee/login → Express API → MongoDB
-     ← JWT/Cookie ← Session Created ← Response ←
+     ← JWT ← Session Created ← Response ←
 ```
 
 **2. Application Submission**
@@ -224,22 +224,10 @@ npm run dev                 # Runs on port 5173
 **Applicant:** `/applicant/apply`, `/applicant/status/:email`  
 **Franchisee:** `/franchisee/login`, `/franchisee/sales`, `/franchisee/sales/analytics`
 
-## Roadmap
-
-- Security: Password hashing, rate limiting, CSRF protection
-- Performance: Caching, CDN, pagination
-- Features: Real-time notifications, 2FA, PDF/CSV exports
-
 ## Authors
 
 **Aryan Kansal** - [GitHub](https://github.com/ARYAN149489) • aryankansal113@gmail.com
 
 **Kalpana** - [GitHub](https://github.com/kkkalpana) • kalpana_kalpana@sfu.ca
-
-## License
-
-MIT License - see LICENSE file for details
-
----
 
 **Star this repo if you find it helpful!**
