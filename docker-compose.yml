@@ -1,0 +1,30 @@
+name: franchise-hub
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./backend/.env
+    networks:
+      - mern-app-network
+    ports:
+      - 2016:2016
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:2016
+    restart: unless-stopped
+    networks:
+      - mern-app-network
+    ports:
+      - 80:80
+    depends_on:
+      - api
+
+networks:
+  mern-app-network:
+    driver: bridge

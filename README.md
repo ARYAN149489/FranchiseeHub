@@ -1,195 +1,245 @@
-# FranchiseHub 🏢
+# FranchiseeHub
 
-> A modern, full-stack franchise management system for streamlining applications, sales tracking, and franchisee operations.
+A franchise management system for handling applications, franchisee operations, and sales tracking.
 
-🌐 **Live Demo:** [https://franchiseehub.netlify.app/](https://franchiseehub.netlify.app/)
+**Live Demo:** [franchiseehub.netlify.app](https://franchiseehub.netlify.app/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-v14+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18.x-blue.svg)](https://reactjs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4.4+-green.svg)](https://www.mongodb.com/)
+## Features
 
-FranchiseHub provides a unified platform for managing the complete franchise lifecycle—from application submission to daily sales tracking. Built with React, Node.js, and MongoDB.
+- **Admin Dashboard**: Application review, franchisee management, sales analytics
+- **Franchisee Portal**: Daily sales entry, interactive charts, history tracking
+- **Applicant Interface**: Online application submission, status tracking
 
-## ✨ Key Features
+## Tech Stack
 
-**For Administrators:**
-- 📋 Application management (review, accept, reject, grant)
-- 👥 Franchisee monitoring and analytics
-- 📊 Sales reports and performance metrics
-- ⚙️ System configuration and settings
+**Frontend:** React 18, Vite, Tailwind CSS, Recharts  
+**Backend:** Node.js, Express.js, Mongoose, Nodemailer  
+**Database:** MongoDB Atlas  
+**DevOps:** Docker, Docker Compose
 
-**For Franchisees:**
-- 💰 Daily sales entry and tracking
-- 📈 Interactive charts and analytics
-- 📅 Sales history with calendar view
-- 🆘 Built-in help and support system
+## Architecture
 
-**For Applicants:**
-- 📝 Online application submission
-- ✉️ Automated email notifications
-- 🎨 Modern, responsive landing page
+### System Overview
+
+```
+                                    ┌──────────────────────┐
+                                    │   MongoDB Atlas      │
+                                    │   (Cloud Database)   │
+                                    └──────────┬───────────┘
+                                               │
+                    ┌──────────────────────────┼──────────────────────────┐
+                    │                          │                          │
+                    ▼                          ▼                          ▼
+            ┌───────────────┐         ┌───────────────┐         ┌───────────────┐
+            │   Admins      │         │  Applicants   │         │  Franchisees  │
+            │  Collection   │         │  Collection   │         │  Collection   │
+            └───────────────┘         └───────────────┘         └───────────────┘
+                    │                          │                          │
+                    └──────────────────────────┼──────────────────────────┘
+                                               │
+                                               ▼
+                                    ┌──────────────────────┐
+                                    │   Express.js API     │
+                                    │   (Port 2016)        │
+                                    │                      │
+                                    │  - Controllers       │
+                                    │  - Models (Mongoose) │
+                                    │  - Routes            │
+                                    │  - Middleware        │
+                                    └──────────┬───────────┘
+                                               │
+                    ┌──────────────────────────┼──────────────────────────┐
+                    │                          │                          │
+                    ▼                          ▼                          ▼
+            ┌───────────────┐         ┌───────────────┐         ┌───────────────┐
+            │  Admin Routes │         │ Applicant Rts │         │Franchisee Rts │
+            │  /admin/*     │         │ /applicant/*  │         │ /franchisee/* │
+            └───────┬───────┘         └───────┬───────┘         └───────┬───────┘
+                    │                         │                         │
+                    └─────────────────────────┼─────────────────────────┘
+                                              │
+                                              │ HTTP/REST
+                                              │
+                                              ▼
+                                    ┌──────────────────────┐
+                                    │   React Frontend     │
+                                    │   (Port 80/5173)     │
+                                    │                      │
+                                    │  - Components        │
+                                    │  - Pages             │
+                                    │  - State Mgmt        │
+                                    └──────────────────────┘
+                                              │
+                    ┌─────────────────────────┼─────────────────────────┐
+                    │                         │                         │
+                    ▼                         ▼                         ▼
+            ┌──────────────┐         ┌──────────────┐         ┌──────────────┐
+            │Admin         │         │Applicant     │         │Franchisee    │
+            │Dashboard     │         │Landing       │         │Dashboard     │
+            └──────────────┘         └──────────────┘         └──────────────┘
 
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js (v14+)
-- MongoDB (v4.4+)
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/franchisehub.git
-cd franchisehub
+                                    ┌──────────────────────┐
+                                    │  Gmail SMTP          │
+                                    │  (Email Service)     │
+                                    └──────────────────────┘
+                                              ▲
+                                              │
+                                    (Nodemailer from API)
 ```
 
-2. **Backend Setup**
-```bash
-cd nodejsbce
-npm install
-node initializeAdmin.js  # Creates default admin account
-node server.js           # Starts on http://localhost:2016
+### Request Flow
+
+**1. User Authentication**
+
+```
+User → Frontend → POST /admin|franchisee/login → Express API → MongoDB
+     ← JWT/Cookie ← Session Created ← Response ←
 ```
 
-3. **Frontend Setup** (in new terminal)
-```bash
-cd vite-project
-npm install
-npm run dev              # Starts on http://localhost:5173
+**2. Application Submission**
+
+```
+Applicant → Form → POST /applicant/apply → API → MongoDB (Save)
+                                                → Nodemailer → Email Notification
 ```
 
-4. **Default Admin Login**
+**3. Sales Data Entry**
+
+```
+Franchisee → Dashboard → POST /franchisee/sales → API → MongoDB
+           ← Updated Chart Data ← Sales Saved ← Response ←
+```
+
+### Design Patterns
+
+- **MVC (Model-View-Controller)**: Separation of business logic, data models, and presentation
+- **RESTful API**: Resource-based endpoints with standard HTTP methods
+- **Repository Pattern**: Mongoose models abstract database operations
+- **Middleware Pipeline**: Request processing through authentication, validation, error handling
+- **Role-Based Access Control (RBAC)**: Three distinct user roles with protected routes
+
+### Components
+
+**Backend (Express.js)**
+
+- Controllers: Handle business logic for each role
+- Models: Mongoose schemas for data validation
+- Routes: API endpoint definitions
+- Middleware: Authentication, error handling, session management
+
+**Frontend (React)**
+
+- Pages: Role-specific dashboards (Admin, Franchisee, Applicant)
+- Components: Reusable UI elements (forms, charts, tables)
+- Config: API client and environment configuration
+
+**Database (MongoDB)**
+
+- Collections: admins, applicants, franchiseCredentials, salesData
+- Indexes: Compound indexes on (email, date) for query optimization
+
+## Quick Start with Docker
+
+**Prerequisites:** Docker & Docker Compose installed
+
+1. **Clone the repo**
+
+   ```bash
+   git clone https://github.com/kkkalpana/FranchiseeHub.git
+   cd FranchiseeHub
+   ```
+
+2. **Setup environment**
+
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+
+   Edit `backend/.env` with your MongoDB Atlas URI and email settings
+
+3. **Run**
+
+   ```bash
+   docker compose up --build
+   ```
+
+4. **Access**
+   - Frontend: http://localhost
+   - Backend API: http://localhost:2016
+
+**Default Admin Login:**
+
 ```
 Email: admin@franchisehub.com
 Password: admin123
 ```
 
-## 🛠️ Tech Stack
-
-**Frontend:** React 18, Vite, Tailwind CSS, React Router, Chart.js  
-**Backend:** Node.js, Express, JWT Authentication  
-**Database:** MongoDB, Mongoose  
-**Email:** Nodemailer
-
-
-## 📁 Project Structure
+## Project Structure
 
 ```
-FranchiseHub/
-├── nodejsbce/              # Backend (Node.js + Express)
+FranchiseeHub/
+├── backend/                # Node.js + Express API
 │   ├── controllers/        # Business logic
 │   ├── models/            # MongoDB schemas
-│   ├── routers/           # API routes
+│   ├── routes/            # API endpoints
+│   ├── config/            # Configuration
+│   ├── Dockerfile         # Backend container
 │   └── server.js          # Entry point
-└── vite-project/          # Frontend (React + Vite)
-    └── src/
-        ├── components/
-        │   ├── show applications/    # Admin Dashboard
-        │   └── user_dashboard/       # Franchisee Dashboard
-        └── App.jsx
+├── frontend/              # React + Vite app
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── pages/         # Page views
+│   │   └── config/        # API config
+│   └── Dockerfile         # Frontend container
+└── docker-compose.yml     # Multi-container setup
 ```
 
+## Manual Setup (Without Docker)
 
-## 🔌 API Endpoints
+### Backend
 
-### Admin
-- `POST /admin/login` - Admin authentication
-- `GET /admin/allApplicants` - Get all applications
-- `POST /admin/acceptApplicant` - Accept application
-- `POST /admin/grantApplicant` - Grant franchise
-- `GET /admin/franchisees` - Get all franchisees
-
-### Applicant
-- `POST /applicant/saveApplication` - Submit application
-- `GET /applicant/checkStatus` - Check application status
-
-### Franchisee
-- `POST /franchisee/login` - Franchisee authentication
-- `POST /franchisee/saveSales` - Save daily sales
-- `GET /franchisee/getSales` - Get sales data
-- `POST /franchisee/sendHelpMessage` - Contact admin
-
-## 💾 Database Schema
-
-**Collections:** `admins`, `applicants`, `franchise_Credentails`, `t_salesdatas`, `adminSettings`
-
-<details>
-<summary>View detailed schemas</summary>
-
-```javascript
-// Applicants
-{
-  fname, lname, email, phone,
-  site_city, site_state, site_address,
-  status: 0=Pending, 1=Accepted, 2=Granted, 3=Rejected,
-  doa, experience, notes
-}
-
-// Franchisees
-{
-  email, password, dof,
-  createdAt, updatedAt
-}
-
-// Sales Data
-{
-  email, date, sales, notes,
-  createdAt, updatedAt
-}
+```bash
+cd backend
+npm install
+node server.js              # Runs on port 2016
 ```
-</details>
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                 # Runs on port 5173
+```
+
+**Environment Variables:**
+
+- Backend: Create `backend/.env` from `.env.example`
+- Frontend: Set `VITE_API_URL=http://localhost:2016`
+
+## API Endpoints
+
+**Admin:** `/admin/login`, `/admin/applications`, `/admin/franchisees`, `/admin/sales`  
+**Applicant:** `/applicant/apply`, `/applicant/status/:email`  
+**Franchisee:** `/franchisee/login`, `/franchisee/sales`, `/franchisee/sales/analytics`
+
+## Roadmap
+
+- Security: Password hashing, rate limiting, CSRF protection
+- Performance: Caching, CDN, pagination
+- Features: Real-time notifications, 2FA, PDF/CSV exports
+
+## Authors
+
+**Aryan Kansal** - [GitHub](https://github.com/ARYAN149489) • aryankansal113@gmail.com
+
+**Kalpana** - [GitHub](https://github.com/kkkalpana) • kalpana_kalpana@sfu.ca
+
+## License
+
+MIT License - see LICENSE file for details
 
 ---
 
-## 🚧 Future Enhancements
-
-### High Priority
-- 🔐 **Password Hashing** - Implement bcrypt (currently plain text)
-- 📊 **Consolidated Charts** - Merge duplicate chart components
-- 🔔 **Notification System** - In-app notifications and real-time updates
-- 📱 **Mobile App** - React Native version
-- 🛡️ **2FA & Advanced Security** - Multi-factor authentication
-
-### Medium Priority
-- 📄 **Reporting & Export** - PDF reports, CSV exports
-- 🔍 **Advanced Search** - Multi-field filters and saved queries
-- 💳 **Payment Integration** - Stripe/PayPal for franchise fees
-- 🌍 **Multi-language** - i18n support
-
-<details>
-<summary>View all planned features</summary>
-
-- Forgot password functionality
-- File upload system for documents
-- Role-based access control (RBAC)
-- Audit logging and compliance
-- Dark mode support
-- Real-time chat between admin and franchisees
-- Advanced analytics and forecasting
-- Training portal and resources
-- API documentation (Swagger)
-- Comprehensive test coverage
-</details>
-
-## 👤 Author
-
-**Aryan Kansal**  
-📧 Email: Aryankansal113@gmail.com  
-💼 GitHub: [@ARYAN149489](https://github.com/ARYAN149489)
-
-**Kalpana**  
-📧 Email: kalpana_kalpana@sfu.ca  
-💼 GitHub: [@kkkalpana](https://github.com/kkkalpana)
-
----
-
-<div align="center">
-  
-**⭐ Star this repo if you find it helpful!**
-
-© 2026 FranchiseHub
-
-</div>
+**Star this repo if you find it helpful!**
