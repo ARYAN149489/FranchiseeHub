@@ -8,9 +8,9 @@ const emailService = require('../utils/emailService');
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admin = await Admin.findOne({ email, password });
+    const admin = await Admin.findOne({ email });
     
-    if (admin) {
+    if (admin && await admin.comparePassword(password)) {
       req.session.adminEmail = email;
       req.session.userType = 'admin';
       res.json({ stat: true, msg: 'Login successful' });

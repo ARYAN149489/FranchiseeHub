@@ -6,9 +6,9 @@ const SalesData = require('../models/SalesData');
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const franchisee = await FranchiseCredential.findOne({ email, password });
+    const franchisee = await FranchiseCredential.findOne({ email });
     
-    if (franchisee) {
+    if (franchisee && await franchisee.comparePassword(password)) {
       req.session.franchiseeEmail = email;
       req.session.userType = 'franchisee';
       res.json({ stat: true, msg: 'Login successful' });
@@ -75,9 +75,9 @@ exports.changePassword = async (req, res) => {
     const { email, currentPassword, newPassword } = req.body;
     
     // Verify current password
-    const credential = await FranchiseCredential.findOne({ email, password: currentPassword });
+    const credential = await FranchiseCredential.findOne({ email });
     
-    if (!credential) {
+    if (!credential || !(await credential.comparePassword(currentPassword))) {
       return res.json({ stat: false, msg: 'Current password is incorrect' });
     }
     
