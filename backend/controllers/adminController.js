@@ -277,18 +277,17 @@ exports.changePassword = async (req, res) => {
   try {
     const { email, currentPassword, newPassword } = req.body;
     
-    // Verify current password
-    const admin = await Admin.findOne({ email, password: currentPassword });
+    // Fetch by email only — never send raw password to MongoDB
+    const admin = await Admin.findOne({ email });
     
-    if (!admin) {
+    // Verify current password via bcrypt comparison
+    if (!admin || !(await admin.comparePassword(currentPassword))) {
       return res.json({ stat: false, msg: 'Current password is incorrect' });
     }
     
-    // Update password
-    await Admin.updateOne(
-      { email },
-      { $set: { password: newPassword } }
-    );
+    // Assign new password and save — triggers pre-save bcrypt hook
+    admin.password = newPassword;
+    await admin.save();
     
     res.json({ stat: true, msg: 'Password changed successfully' });
   } catch (error) {
