@@ -2,7 +2,7 @@
 
 A franchise management system for handling applications, franchisee operations, and sales tracking.
 
-**Live Demo:** [franchiseehub.netlify.app](https://franchiseehub.netlify.app/)
+**Live Demo:** [https://main.d1fgrmpmh0h0hv.amplifyapp.com/](https://main.d1fgrmpmh0h0hv.amplifyapp.com/)
 
 ## Features
 
@@ -172,7 +172,7 @@ Franchisee → Dashboard → POST /franchisee/sales → API → MongoDB
 
 ```
 Email: admin@franchisehub.com
-Password: admin123
+Password: Aryan@113
 ```
 
 ## Project Structure
