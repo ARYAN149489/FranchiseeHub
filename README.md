@@ -5,6 +5,8 @@ A comprehensive, enterprise-grade Franchise Management & Sales Tracking System. 
 **Live Frontend Application:** [https://main.d1fgrmpmh0h0hv.amplifyapp.com/](https://main.d1fgrmpmh0h0hv.amplifyapp.com/)  
 **Secure Backend API Endpoint:** [https://franchiseehub-api.duckdns.org/](https://franchiseehub-api.duckdns.org/)
 
+
+
 ---
 
 ## 🚀 Cloud Infrastructure & DevOps Architecture
