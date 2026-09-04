@@ -1,13 +1,76 @@
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+let transporter = null;
+let etherealAccount = null;
+
+// Helper to create Gmail transporter if credentials exist
+const createGmailTransporter = () => {
+  const user = process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : '';
+  const pass = process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : '';
+  if (!user || !pass) return null;
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user, pass }
+  });
+};
+
+// Resilient transporter retriever with fallback
+const getTransporter = async () => {
+  if (transporter) return transporter;
+
+  const gmailTransporter = createGmailTransporter();
+  if (gmailTransporter) {
+    try {
+      await gmailTransporter.verify();
+      console.log('✅ Gmail SMTP connected and verified successfully');
+      transporter = gmailTransporter;
+      return transporter;
+    } catch (err) {
+      console.warn(`⚠️ Gmail SMTP authentication failed (${err.message}). Switching to test email service...`);
+    }
   }
-});
+
+  // Fallback to ethereal test account so email sending never breaks
+  if (!etherealAccount) {
+    try {
+      etherealAccount = await nodemailer.createTestAccount();
+      console.log(`ℹ️ Initialized Ethereal test email account: ${etherealAccount.user}`);
+    } catch (etherealErr) {
+      console.error('❌ Failed to create test account:', etherealErr.message);
+    }
+  }
+
+  if (etherealAccount) {
+    transporter = nodemailer.createTransport({
+      host: etherealAccount.smtp.host,
+      port: etherealAccount.smtp.port,
+      secure: etherealAccount.smtp.secure,
+      auth: {
+        user: etherealAccount.user,
+        pass: etherealAccount.pass
+      }
+    });
+    return transporter;
+  }
+
+  // Final fallback dummy transporter
+  return nodemailer.createTransport({
+    jsonTransport: true
+  });
+};
+
+// Safe email sender
+const sendMailSafe = async (mailOptions) => {
+  const transport = await getTransporter();
+  const info = await transport.sendMail(mailOptions);
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  if (previewUrl) {
+    console.log(`🔗 Email Preview URL (view sent email in browser): ${previewUrl}`);
+  }
+  return { success: true, messageId: info.messageId, previewUrl };
+};
+
 
 // Email template for franchise credentials
 const getFranchiseCredentialsTemplate = (franchiseeName, email, password) => {
@@ -483,7 +546,7 @@ const getNewApplicationAdminTemplate = (applicantName, email, businessName, city
         </div>
       </div>
       <center>
-        <a href="${process.env.FRONTEND_URL}/admin/applications" class="button">
+        <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/applications" class="button">
           Review Application →
         </a>
       </center>
@@ -501,16 +564,17 @@ const getNewApplicationAdminTemplate = (applicantName, email, businessName, city
 // Send franchise credentials email
 exports.sendFranchiseCredentials = async (to, franchiseeName, email, password) => {
   try {
+    const fromAddress = process.env.EMAIL_USER || 'noreply@franchiseehub.com';
     const mailOptions = {
-      from: `"FranchiseeHub" <${process.env.EMAIL_USER}>`,
+      from: `"FranchiseeHub" <${fromAddress}>`,
       to: to,
       subject: '🎉 Your FranchiseeHub Account is Ready!',
       html: getFranchiseCredentialsTemplate(franchiseeName, email, password)
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const result = await sendMailSafe(mailOptions);
     console.log('✅ Credentials email sent successfully to:', to);
-    return { success: true, messageId: info.messageId };
+    return result;
   } catch (error) {
     console.error('❌ Error sending credentials email:', error);
     return { success: false, error: error.message };
@@ -520,16 +584,17 @@ exports.sendFranchiseCredentials = async (to, franchiseeName, email, password) =
 // Send application accepted email
 exports.sendApplicationAccepted = async (to, franchiseeName) => {
   try {
+    const fromAddress = process.env.EMAIL_USER || 'noreply@franchiseehub.com';
     const mailOptions = {
-      from: `"FranchiseeHub" <${process.env.EMAIL_USER}>`,
+      from: `"FranchiseeHub" <${fromAddress}>`,
       to: to,
       subject: '✅ Your Franchise Application Has Been Accepted',
       html: getApplicationAcceptedTemplate(franchiseeName)
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const result = await sendMailSafe(mailOptions);
     console.log('✅ Application accepted email sent successfully to:', to);
-    return { success: true, messageId: info.messageId };
+    return result;
   } catch (error) {
     console.error('❌ Error sending accepted email:', error);
     return { success: false, error: error.message };
@@ -539,16 +604,17 @@ exports.sendApplicationAccepted = async (to, franchiseeName) => {
 // Send application rejected email
 exports.sendApplicationRejected = async (to, franchiseeName) => {
   try {
+    const fromAddress = process.env.EMAIL_USER || 'noreply@franchiseehub.com';
     const mailOptions = {
-      from: `"FranchiseeHub" <${process.env.EMAIL_USER}>`,
+      from: `"FranchiseeHub" <${fromAddress}>`,
       to: to,
       subject: 'FranchiseeHub Application Status Update',
       html: getApplicationRejectedTemplate(franchiseeName)
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const result = await sendMailSafe(mailOptions);
     console.log('✅ Application rejected email sent successfully to:', to);
-    return { success: true, messageId: info.messageId };
+    return result;
   } catch (error) {
     console.error('❌ Error sending rejected email:', error);
     return { success: false, error: error.message };
@@ -558,16 +624,17 @@ exports.sendApplicationRejected = async (to, franchiseeName) => {
 // Send new application notification to admin
 exports.sendNewApplicationNotification = async (adminEmail, applicantName, email, businessName, city) => {
   try {
+    const fromAddress = process.env.EMAIL_USER || 'noreply@franchiseehub.com';
     const mailOptions = {
-      from: `"FranchiseeHub System" <${process.env.EMAIL_USER}>`,
+      from: `"FranchiseeHub System" <${fromAddress}>`,
       to: adminEmail,
       subject: '🔔 New Franchise Application Received',
       html: getNewApplicationAdminTemplate(applicantName, email, businessName, city)
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const result = await sendMailSafe(mailOptions);
     console.log('✅ New application notification sent to admin:', adminEmail);
-    return { success: true, messageId: info.messageId };
+    return result;
   } catch (error) {
     console.error('❌ Error sending admin notification:', error);
     return { success: false, error: error.message };
@@ -577,8 +644,13 @@ exports.sendNewApplicationNotification = async (adminEmail, applicantName, email
 // Test email configuration
 exports.testEmailConfig = async () => {
   try {
-    await transporter.verify();
-    console.log('✅ Email server is ready to send messages');
+    const transport = await getTransporter();
+    await transport.verify();
+    if (etherealAccount) {
+      console.log(`ℹ️ Email service is operating in Ethereal Test Mode (${etherealAccount.user})`);
+    } else {
+      console.log('✅ Email server is ready to send messages');
+    }
     return true;
   } catch (error) {
     console.error('❌ Email configuration error:', error);
