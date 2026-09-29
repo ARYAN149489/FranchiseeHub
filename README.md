@@ -1,4 +1,4 @@
-# 🏢 FranchiseeHub
+# FranchiseeHub
 
 A comprehensive, enterprise-grade Franchise Management & Sales Tracking System. Built using the MERN stack and designed for modern, multi-location franchise networks to streamline applicant onboarding, franchisee sales reporting, and admin analytics.
 
@@ -9,7 +9,7 @@ A comprehensive, enterprise-grade Franchise Management & Sales Tracking System. 
 
 ---
 
-## 🚀 Cloud Infrastructure & DevOps Architecture
+## Cloud Infrastructure & DevOps Architecture
 
 FranchiseeHub is designed with a modern, decoupled production architecture on Amazon Web Services (AWS) to maximize scalability, security, and developer velocity.
 
@@ -51,27 +51,27 @@ FranchiseeHub is designed with a modern, decoupled production architecture on Am
 
 ---
 
-## 💎 Features & Role-Based Workflows
+## Features & Role-Based Workflows
 
 The application supports three distinct user roles, each with custom dashboards and workflows:
 
-### 💼 1. Admin & Super Admin Dashboard
+### 1. Admin & Super Admin Dashboard
 * **Applicant Pipeline**: Review incoming applications, accept/reject submissions, and dynamically generate secure login credentials for approved franchisees.
 * **Franchise Management**: Manage the active franchisee directory, modify profiles, and monitor operational parameters.
 * **Sales Analytics**: Visualize system-wide revenue, track high-performing locations, and query specific sales histories by date range.
 
-### 🥼 2. Franchisee Portal
+### 2. Franchisee Portal
 * **Daily Sales Entry**: Streamlined interface for entering daily revenue figures.
 * **Interactive Charting**: Location-specific dashboard containing weekly, monthly, and year-to-date sales comparisons (powered by Recharts).
 * **Historical Auditing**: Date-filtered transaction tables allowing owners to track historical performances.
 
-### 📝 3. Applicant Interface
+### 3. Applicant Interface
 * **Onboarding Portal**: Multi-step application form collecting personal information, proposed business locations, financial statements, and operational experience.
 * **Status Checker**: Email-linked dashboard showing real-time feedback of the application review status (`pending`, `accepted`, `rejected`, `granted`).
 
 ---
 
-## 🛠️ Technical Stack & Engineering Patterns
+## Technical Stack & Engineering Patterns
 
 ### Frontend
 * **React 19** (Functional Components, Hooks)
@@ -94,7 +94,7 @@ The application supports three distinct user roles, each with custom dashboards 
 
 ---
 
-## 📂 Project Directory Structure
+## Project Directory Structure
 
 ```
 FranchiseeHub/
@@ -118,7 +118,7 @@ FranchiseeHub/
 
 ---
 
-## 🏃 Quick Start Guide
+## Quick Start Guide
 
 ### Option A: Local Run with Docker (Recommended)
 Make sure you have Docker and Docker Compose installed.
@@ -159,7 +159,7 @@ npm run dev
 
 ---
 
-## 🔐 Credentials for Interviewers / Reviewers
+## Credentials for Interviewers / Reviewers
 
 Use these credentials to log in and test the system immediately without going through the sign-up flow:
 
@@ -175,7 +175,7 @@ Use these credentials to log in and test the system immediately without going th
 
 ---
 
-## 📬 Contact & Contributions
+## Contact & Contributions
 
 * **Aryan Kansal** - Lead Developer & Systems Architect  
   Email: [aryankansal113@gmail.com](mailto:aryankansal113@gmail.com) | GitHub: [@ARYAN149489](https://github.com/ARYAN149489)
